@@ -1,6 +1,6 @@
-namespace DigitalGamesStoreService.Data.Requests;
+namespace DigitalGamesStoreService.Models.DTO;
 
-public class OwnedGameRequest
+public class OwnedGameDto
 {
     public Guid Id { get; set; }
     public int GameId { get; set; }

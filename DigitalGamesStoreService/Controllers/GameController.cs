@@ -1,6 +1,8 @@
-using DigitalGamesStoreService.Data.Repositories;
-using DigitalGamesStoreService.Data.Requests;
-using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Data;
+using DigitalGamesStoreService.Models.DTO;
+using DigitalGamesStoreService.Models.Requests.Create;
+using DigitalGamesStoreService.Models.Requests.Update;
+using DigitalGamesStoreService.Services.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalGamesStoreService.Controllers;
@@ -11,30 +13,55 @@ public class GameController
 {
     #region Services
 
+    private readonly ILogger<GameController> logger;
     private readonly IGameRepository gameRepository;
 
     #endregion
 
-    public GameController(IGameRepository gameRepository)
+    public GameController(ILogger<GameController> logger, IGameRepository gameRepository)
     {
+        this.logger = logger;
         this.gameRepository = gameRepository;
     }
     
     [HttpGet("get/all")]
-    public IActionResult GetAllUsers()
+    public ActionResult<List<GameDto>> GetAll()
     {
-        return new OkObjectResult(gameRepository.GetAll());
+        logger.LogInformation("Got all games.");
+
+        var result = gameRepository.GetAll().Select(game => new GameDto {
+            Id = game.Id,
+            Name = game.Name,
+            Description = game.Description,
+            Cost = game.Cost,
+            DeveloperName = game.DeveloperName
+        }).ToList();
+        
+        return new OkObjectResult(result);
     }
 
     [HttpGet("get/{id}")]
-    public IActionResult GetById([FromRoute] int id)
+    public ActionResult<GameDto> GetById([FromRoute] int id)
     {
-        return new OkObjectResult(gameRepository.GetById(id));
+        logger.LogInformation($"Got game with id {id}.");
+
+        var game = gameRepository.GetById(id);
+        var result = new GameDto {
+            Id = game.Id,
+            Name = game.Name,
+            Description = game.Description,
+            Cost = game.Cost,
+            DeveloperName = game.DeveloperName
+        };
+        
+        return new OkObjectResult(result);
     }
 
     [HttpPost("create")]
-    public IActionResult Create([FromBody] GameRequest request)
+    public IActionResult Create([FromBody] GameCreateRequest request)
     {
+        logger.LogInformation("Created game.");
+        
         var id = gameRepository.Create(new Game {
             Name = request.Name,
             DeveloperName = request.DeveloperName,
@@ -46,8 +73,10 @@ public class GameController
     }
 
     [HttpPost("update")]
-    public IActionResult Update([FromBody] Game request)
+    public IActionResult Update([FromBody] GameUpdateRequest request)
     {
+        logger.LogInformation("Updated game.");
+        
         gameRepository.Update(new Game {
             Name = request.Name,
             DeveloperName = request.DeveloperName,
@@ -61,6 +90,8 @@ public class GameController
     [HttpGet("delete/{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
+        logger.LogInformation($"Deleted game with id {id}.");
+        
         gameRepository.Delete(id);
 
         return new OkResult();

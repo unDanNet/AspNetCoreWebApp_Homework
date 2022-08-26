@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lesson1", "Lesson1\Lesson1.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalGamesStoreService", "DigitalGamesStoreService\DigitalGamesStoreService.csproj", "{0ECABA4C-04F3-4974-B03C-DBD80403459D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalGamesStoreService.Data", "DigitalGamesStoreService.Data\DigitalGamesStoreService.Data.csproj", "{0681E44B-588F-438F-99CF-2FB12217EBE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{0ECABA4C-04F3-4974-B03C-DBD80403459D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ECABA4C-04F3-4974-B03C-DBD80403459D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ECABA4C-04F3-4974-B03C-DBD80403459D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

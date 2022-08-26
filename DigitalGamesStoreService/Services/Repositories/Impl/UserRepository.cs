@@ -1,31 +1,33 @@
+using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Models.DTO;
 
-namespace DigitalGamesStoreService.Data.Repositories.Impl;
+namespace DigitalGamesStoreService.Services.Repositories.Impl;
 
 public class UserRepository : IUserRepository
 {
     public IEnumerable<User> GetAll()
     {
-        throw new NotImplementedException();
+        return new List<User>();
     }
 
     public User GetById(int id)
     {
-        throw new NotImplementedException();
+        return new User();
     }
 
     public int Create(User data)
     {
-        throw new NotImplementedException();
+        return 0;
     }
 
     public void Update(User data)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void Delete(int id)
     {
-        throw new NotImplementedException();
+        
     }
 }

@@ -1,6 +1,6 @@
-namespace DigitalGamesStoreService.Data.Requests;
+namespace DigitalGamesStoreService.Data;
 
-public class UserRequest
+public class User
 {
     public int Id { get; set; }
     public int PublicProfileId { get; set; }

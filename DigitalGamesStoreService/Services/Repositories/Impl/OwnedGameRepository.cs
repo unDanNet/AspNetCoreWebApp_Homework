@@ -1,31 +1,33 @@
+using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Models.DTO;
 
-namespace DigitalGamesStoreService.Data.Repositories.Impl;
+namespace DigitalGamesStoreService.Services.Repositories.Impl;
 
 public class OwnedGameRepository : IOwnedGameRepository
 {
     public IEnumerable<OwnedGame> GetAll()
     {
-        throw new NotImplementedException();
+        return new List<OwnedGame>();
     }
 
     public OwnedGame GetById(Guid id)
     {
-        throw new NotImplementedException();
+        return new OwnedGame();
     }
 
     public Guid Create(OwnedGame data)
     {
-        throw new NotImplementedException();
+        return new Guid();
     }
 
     public void Update(OwnedGame data)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void Delete(Guid id)
     {
-        throw new NotImplementedException();
+        
     }
 }
