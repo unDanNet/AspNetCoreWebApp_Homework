@@ -1,4 +1,4 @@
-namespace DigitalGamesStoreService.Models;
+namespace DigitalGamesStoreService.Data;
 
 public class OwnedGame
 {

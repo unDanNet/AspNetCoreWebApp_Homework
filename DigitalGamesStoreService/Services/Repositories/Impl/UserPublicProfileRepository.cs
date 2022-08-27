@@ -1,31 +1,33 @@
+using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Models.DTO;
 
-namespace DigitalGamesStoreService.Data.Repositories.Impl;
+namespace DigitalGamesStoreService.Services.Repositories.Impl;
 
 public class UserPublicProfileRepository : IUserPublicProfileRepository
 {
     public IEnumerable<UserPublicProfile> GetAll()
     {
-        throw new NotImplementedException();
+        return new List<UserPublicProfile>();
     }
 
     public UserPublicProfile GetById(int id)
     {
-        throw new NotImplementedException();
+        return new UserPublicProfile();
     }
 
     public int Create(UserPublicProfile data)
     {
-        throw new NotImplementedException();
+        return 0;
     }
 
     public void Update(UserPublicProfile data)
     {
-        throw new NotImplementedException();
+        
     }
 
     public void Delete(int id)
     {
-        throw new NotImplementedException();
+        
     }
 }

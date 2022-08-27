@@ -1,6 +1,6 @@
-namespace DigitalGamesStoreService.Data.Requests;
+namespace DigitalGamesStoreService.Models.DTO;
 
-public class UserPublicProfileRequest
+public class UserPublicProfileDto
 {
     public int Id { get; set; }
     public string Nickname { get; set; }

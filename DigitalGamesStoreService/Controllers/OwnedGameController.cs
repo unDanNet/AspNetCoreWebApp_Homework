@@ -1,6 +1,8 @@
-using DigitalGamesStoreService.Data.Repositories;
-using DigitalGamesStoreService.Data.Requests;
-using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Data;
+using DigitalGamesStoreService.Models.DTO;
+using DigitalGamesStoreService.Models.Requests.Create;
+using DigitalGamesStoreService.Models.Requests.Update;
+using DigitalGamesStoreService.Services.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalGamesStoreService.Controllers;
@@ -11,44 +13,59 @@ public class OwnedGameController
 {
     #region Services
 
+    private readonly ILogger<OwnedGameController> logger;
     private readonly IOwnedGameRepository ownedGameRepository;
 
     #endregion
 
-    public OwnedGameController(IOwnedGameRepository ownedGameRepository)
+    public OwnedGameController(ILogger<OwnedGameController> logger, IOwnedGameRepository ownedGameRepository)
     {
+        this.logger = logger;
         this.ownedGameRepository = ownedGameRepository;
     }
     
-    [HttpGet("get/all")]
-    public IActionResult GetAllUsers()
-    {
-        return new OkObjectResult(ownedGameRepository.GetAll());
-    }
+    //TODO: Decide whether GET ALL method is needed for owned games
+    // [HttpGet("get/all")]
+    // public IActionResult GetAll()
+    // {
+    //     logger.LogInformation("Got all owned games.");
+    //     return new OkObjectResult(ownedGameRepository.GetAll());
+    // }
 
     [HttpGet("get/{id}")]
-    public IActionResult GetById([FromRoute] Guid id)
+    public ActionResult<OwnedGameDto> GetById([FromRoute] Guid id)
     {
-        return new OkObjectResult(ownedGameRepository.GetById(id));
+        logger.LogInformation($"Got owned game with guid {id}.");
+
+        var ownedGame = ownedGameRepository.GetById(id);
+        var result = new OwnedGameDto {
+            GameId = ownedGame.GameId,
+            Id = ownedGame.Id,
+            HoursPlayed = ownedGame.HoursPlayed,
+            IsFavourite = ownedGame.IsFavourite
+        };
+        
+        return new OkObjectResult(result);
     }
 
     [HttpPost("create")]
-    public IActionResult Create([FromBody] OwnedGameRequest request)
+    public IActionResult Create([FromBody] OwnedGameCreateRequest request)
     {
+        logger.LogInformation("Created owned game.");
+        
         var id = ownedGameRepository.Create(new OwnedGame {
             GameId = request.GameId,
-            HoursPlayed = request.HoursPlayed,
-            IsFavourite = request.IsFavourite
         });
 
         return new OkObjectResult(id);
     }
 
     [HttpPost("update")]
-    public IActionResult Update([FromBody] OwnedGameRequest request)
+    public IActionResult Update([FromBody] OwnedGameUpdateRequest request)
     {
+        logger.LogInformation("Updated owned game.");
+        
         ownedGameRepository.Update(new OwnedGame {
-            GameId = request.GameId,
             HoursPlayed = request.HoursPlayed,
             IsFavourite = request.IsFavourite
         });
@@ -59,6 +76,8 @@ public class OwnedGameController
     [HttpGet("delete/{id}")]
     public IActionResult Delete([FromRoute] Guid id)
     {
+        logger.LogInformation($"Deleted game with guid {id}.");
+        
         ownedGameRepository.Delete(id);
 
         return new OkResult();
