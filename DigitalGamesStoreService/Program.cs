@@ -1,8 +1,10 @@
+using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Services.Repositories;
 using DigitalGamesStoreService.Services.Repositories.Impl;
 using DigitalGamesStoreService.Models;
 using DigitalGamesStoreService.Settings;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 
 namespace DigitalGamesStoreService
@@ -17,6 +19,10 @@ namespace DigitalGamesStoreService
 
             builder.Services.Configure<NLogSettings>(settings =>
                 builder.Configuration.GetSection("NLog").Bind(settings)
+            );
+
+            builder.Services.Configure<DatabaseSettings>(settings =>
+                builder.Configuration.GetSection("Database").Bind(settings)
             );
 
             #endregion
@@ -37,6 +43,14 @@ namespace DigitalGamesStoreService
                 logging.AddConsole();
             }).UseNLog(new NLogAspNetCoreOptions {
                 RemoveLoggerFactoryFilter = true
+            });
+
+            #endregion
+
+            #region Configuring Database
+
+            builder.Services.AddDbContext<DGSServiceDbContext>(options => {
+                options.UseNpgsql(builder.Configuration["Database:ConnectionString"]);
             });
 
             #endregion

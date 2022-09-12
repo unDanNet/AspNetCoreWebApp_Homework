@@ -29,12 +29,12 @@ public class UserPublicProfileController
     {
         logger.LogInformation("Got all user public profiles.");
 
-        var result = userPublicProfileRepository.GetAll().Select(profile => new UserPublicProfileDto {
+        var result = userPublicProfileRepository.GetAll(true).Select(profile => new UserPublicProfileDto {
             Id = profile.Id,
-            FriendsProfileIds = profile.FriendsProfileIds,
             Nickname = profile.Nickname,
             ProfileDescription = profile.ProfileDescription,
-            CurrentlyPlayedGameId = profile.CurrentlyPlayedGameId
+            CurrentlyPlayedGame = profile.CurrentlyPlayedGame,
+            UserId = profile.UserId
         }).ToList();
         
         return new OkObjectResult(result);
@@ -45,13 +45,13 @@ public class UserPublicProfileController
     {
         logger.LogInformation($"Got user public profile with id {id}.");
 
-        var profile = userPublicProfileRepository.GetById(id);
+        var profile = userPublicProfileRepository.GetById(id, true);
         var result = new UserPublicProfileDto {
             Id = profile.Id,
-            FriendsProfileIds = profile.FriendsProfileIds,
             Nickname = profile.Nickname,
             ProfileDescription = profile.ProfileDescription,
-            CurrentlyPlayedGameId = profile.CurrentlyPlayedGameId
+            CurrentlyPlayedGame = profile.CurrentlyPlayedGame,
+            UserId = profile.UserId
         };
         
         return new OkObjectResult(result);
@@ -77,16 +77,16 @@ public class UserPublicProfileController
         logger.LogInformation("Updated user public profile.");
         
         userPublicProfileRepository.Update(new UserPublicProfile {
+            Id = request.Id,
             Nickname = request.Nickname,
             ProfileDescription = request.ProfileDescription,
             CurrentlyPlayedGameId = request.CurrentlyPlayedGameId,
-            FriendsProfileIds = request.FriendsProfileIds
         });
 
         return new OkResult();
     }
 
-    [HttpGet("delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
         logger.LogInformation($"Deleted user public profile with id {id}");

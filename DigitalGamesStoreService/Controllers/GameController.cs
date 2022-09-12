@@ -78,6 +78,7 @@ public class GameController
         logger.LogInformation("Updated game.");
         
         gameRepository.Update(new Game {
+            Id = request.Id,
             Name = request.Name,
             DeveloperName = request.DeveloperName,
             Description = request.Description,
@@ -87,7 +88,7 @@ public class GameController
         return new OkResult();
     }
 
-    [HttpGet("delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
         logger.LogInformation($"Deleted game with id {id}.");

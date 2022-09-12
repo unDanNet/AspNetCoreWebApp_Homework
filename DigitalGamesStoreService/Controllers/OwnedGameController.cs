@@ -23,23 +23,32 @@ public class OwnedGameController
         this.logger = logger;
         this.ownedGameRepository = ownedGameRepository;
     }
-    
-    //TODO: Decide whether GET ALL method is needed for owned games
-    // [HttpGet("get/all")]
-    // public IActionResult GetAll()
-    // {
-    //     logger.LogInformation("Got all owned games.");
-    //     return new OkObjectResult(ownedGameRepository.GetAll());
-    // }
+
+    [HttpGet("get/all")]
+    public ActionResult<List<OwnedGameDto>> GetAll()
+    {
+        logger.LogInformation("Got all owned games");
+
+        var result = ownedGameRepository.GetAll(true).Select(og => new OwnedGameDto {
+            Game = og.Game,
+            OwnerId = og.UserId,
+            HoursPlayed = og.HoursPlayed,
+            Id = og.Id,
+            IsFavourite = og.IsFavourite
+        }).ToList();
+
+        return new OkObjectResult(result);
+    }
 
     [HttpGet("get/{id}")]
     public ActionResult<OwnedGameDto> GetById([FromRoute] Guid id)
     {
         logger.LogInformation($"Got owned game with guid {id}.");
 
-        var ownedGame = ownedGameRepository.GetById(id);
+        var ownedGame = ownedGameRepository.GetById(id, false);
         var result = new OwnedGameDto {
-            GameId = ownedGame.GameId,
+            Game = ownedGame.Game,
+            OwnerId = ownedGame.UserId,
             Id = ownedGame.Id,
             HoursPlayed = ownedGame.HoursPlayed,
             IsFavourite = ownedGame.IsFavourite
@@ -55,6 +64,7 @@ public class OwnedGameController
         
         var id = ownedGameRepository.Create(new OwnedGame {
             GameId = request.GameId,
+            UserId = request.OwnerId
         });
 
         return new OkObjectResult(id);
@@ -66,6 +76,7 @@ public class OwnedGameController
         logger.LogInformation("Updated owned game.");
         
         ownedGameRepository.Update(new OwnedGame {
+            Id = request.Id,
             HoursPlayed = request.HoursPlayed,
             IsFavourite = request.IsFavourite
         });
@@ -73,7 +84,7 @@ public class OwnedGameController
         return new OkResult();
     }
 
-    [HttpGet("delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public IActionResult Delete([FromRoute] Guid id)
     {
         logger.LogInformation($"Deleted game with guid {id}.");
