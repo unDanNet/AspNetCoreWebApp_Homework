@@ -34,18 +34,18 @@ namespace DigitalGamesStoreService.Data.Migrations
                         .HasColumnType("money");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(1023)
-                        .HasColumnType("character varying(1023)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
 
                     b.Property<string>("DeveloperName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
@@ -93,13 +93,18 @@ namespace DigitalGamesStoreService.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(31)
-                        .HasColumnType("character varying(31)");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
 
@@ -118,12 +123,12 @@ namespace DigitalGamesStoreService.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Nickname")
-                        .HasMaxLength(31)
-                        .HasColumnType("character varying(31)");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
 
                     b.Property<string>("ProfileDescription")
-                        .HasMaxLength(1023)
-                        .HasColumnType("character varying(1023)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -138,6 +143,41 @@ namespace DigitalGamesStoreService.Data.Migrations
                     b.ToTable("Profiles");
                 });
 
+            modelBuilder.Entity("DigitalGamesStoreService.Data.UserSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<DateTime?>("ExpiredAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<bool>("IsExpired")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastRequestedAt")
+                        .HasColumnType("timestamp");
+
+                    b.Property<string>("SessionToken")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserSession");
+                });
+
             modelBuilder.Entity("DigitalGamesStoreService.Data.OwnedGame", b =>
                 {
                     b.HasOne("DigitalGamesStoreService.Data.Game", "Game")
@@ -146,15 +186,13 @@ namespace DigitalGamesStoreService.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DigitalGamesStoreService.Data.User", "User")
+                    b.HasOne("DigitalGamesStoreService.Data.User", null)
                         .WithMany("OwnedGames")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Game");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DigitalGamesStoreService.Data.UserPublicProfile", b =>
@@ -163,20 +201,29 @@ namespace DigitalGamesStoreService.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CurrentlyPlayedGameId");
 
-                    b.HasOne("DigitalGamesStoreService.Data.User", "User")
+                    b.HasOne("DigitalGamesStoreService.Data.User", null)
                         .WithOne("UserPublicProfile")
                         .HasForeignKey("DigitalGamesStoreService.Data.UserPublicProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CurrentlyPlayedGame");
+                });
 
-                    b.Navigation("User");
+            modelBuilder.Entity("DigitalGamesStoreService.Data.UserSession", b =>
+                {
+                    b.HasOne("DigitalGamesStoreService.Data.User", null)
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DigitalGamesStoreService.Data.User", b =>
                 {
                     b.Navigation("OwnedGames");
+
+                    b.Navigation("Sessions");
 
                     b.Navigation("UserPublicProfile");
                 });

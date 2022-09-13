@@ -14,14 +14,11 @@
         <PackageReference Include="NLog.Schema" Version="5.0.2" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.1.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\DigitalGamesStoreService.Data\DigitalGamesStoreService.Data.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Services" />
     </ItemGroup>
 
 </Project>

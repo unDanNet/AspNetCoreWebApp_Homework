@@ -11,16 +11,16 @@ public class Game
     
     [Column]
     [Required]
-    [StringLength(255, MinimumLength = 2)]
+    [StringLength(256, MinimumLength = 2)]
     public string Name { get; set; }
     
     [Column]
     [Required]
-    [StringLength(255, MinimumLength = 2)]
+    [StringLength(256, MinimumLength = 2)]
     public string DeveloperName { get; set; }
     
     [Column]
-    [StringLength(1023)]
+    [StringLength(1024)]
     public string Description { get; set; }
     
     [Column(TypeName = "money")]

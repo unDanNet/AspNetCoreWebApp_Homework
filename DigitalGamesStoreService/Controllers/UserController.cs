@@ -65,10 +65,13 @@ public class UserController
     public IActionResult Create([FromBody] UserCreateRequest request)
     {
         logger.LogInformation("Created user.");
+
+        var passwordComponents = PasswordUtils.CreatePasswordSecuredComponents(request.Password);
         
         var id = userRepository.Create(new User {
             Email = request.Email,
-            Password = request.Password
+            PasswordSalt = passwordComponents.salt,
+            Password = passwordComponents.hashedPassword
         });
 
         return new OkObjectResult(id);
