@@ -12,11 +12,11 @@ public class UserPublicProfile
     public int UserId { get; set; }
 
     [Column]
-    [StringLength(31)]
+    [StringLength(32)]
     public string Nickname { get; set; }
     
     [Column]
-    [StringLength(1023)]
+    [StringLength(1024)]
     public string ProfileDescription { get; set; }
 
     [ForeignKey(nameof(Game))]

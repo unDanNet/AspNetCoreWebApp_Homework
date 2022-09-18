@@ -13,16 +13,23 @@ public class User
 
     [Column]
     [Required]
-    [StringLength(255)]
+    [StringLength(256, MinimumLength = 6)]
     public string Email { get; set; }
     
     [Column]
     [Required]
-    [StringLength(31)]
+    [StringLength(128)]
     public string Password { get; set; }
+    
+    [Column]
+    [Required]
+    [StringLength(128)]
+    public string PasswordSalt { get; set; }
     
     [Column(TypeName = "money")]
     public decimal Balance { get; set; }
     
     public virtual IEnumerable<OwnedGame> OwnedGames { get; set; } = new HashSet<OwnedGame>();
+
+    public virtual IEnumerable<UserSession> Sessions { get; set; } = new HashSet<UserSession>();
 }

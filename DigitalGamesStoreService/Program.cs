@@ -2,6 +2,7 @@ using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Services.Repositories;
 using DigitalGamesStoreService.Services.Repositories.Impl;
 using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Services;
 using DigitalGamesStoreService.Settings;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
@@ -66,11 +67,15 @@ namespace DigitalGamesStoreService
 
             #region Adding Other Services
 
+            builder.Services.AddSingleton<IAuthenticateService, AuthenticateService>();
+            
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             #endregion
+            
+            
 
             var app = builder.Build();
 

@@ -8,6 +8,7 @@ public sealed class DGSServiceDbContext : DbContext
     public DbSet<UserPublicProfile> Profiles { get; set; }
     public DbSet<Game> Games { get; set; }
     public DbSet<OwnedGame> OwnedGames { get; set; }
+    public DbSet<UserSession> UserSessions { get; set; }
 
     public DGSServiceDbContext()
     {
