@@ -31,10 +31,12 @@ public class UserController
     {
         logger.LogInformation("Got all users.");
 
-        var result = userRepository.GetAll().Select(user => new UserDto {
+        var users = userRepository.GetAll(true);
+
+        var result = users.Select(user => new UserDto {
             Id = user.Id,
-            PublicProfileId = user.PublicProfileId,
-            OwnedGameIds = user.OwnedGameIds,
+            PublicProfile = user.UserPublicProfile,
+            OwnedGames = user.OwnedGames,
             Email = user.Email,
             Balance = user.Balance
         }).ToList();
@@ -47,11 +49,11 @@ public class UserController
     {
         logger.LogInformation($"Got user with id {id}.");
 
-        var user = userRepository.GetById(id);
+        var user = userRepository.GetById(id, true);
         var result = new UserDto {
             Id = user.Id,
-            PublicProfileId = user.PublicProfileId,
-            OwnedGameIds = user.OwnedGameIds,
+            PublicProfile = user.UserPublicProfile,
+            OwnedGames = user.OwnedGames,
             Email = user.Email,
             Balance = user.Balance
         };
@@ -78,16 +80,17 @@ public class UserController
         logger.LogInformation("Updated user.");
         
         userRepository.Update(new User {
+            Id = request.Id,
             Email = request.Email,
             Password = request.Password,
             Balance = request.Balance,
-            OwnedGameIds = request.OwnedGameIds
+            OwnedGames = request.OwnedGames
         });
 
         return new OkResult();
     }
 
-    [HttpGet("delete/{id}")]
+    [HttpDelete("delete/{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
         logger.LogInformation($"Deleted user with id {id}.");
