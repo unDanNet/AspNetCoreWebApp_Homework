@@ -17,13 +17,13 @@ public class UserSession
     [ForeignKey(nameof(User))]
     public int UserId { get; set; }
 
-    [Column(TypeName = "timestamp")]
+    [Column(TypeName = "timestamptz")]
     public DateTime CreatedAt { get; set; }
     
-    [Column(TypeName = "timestamp")]
+    [Column(TypeName = "timestamptz")]
     public DateTime LastRequestedAt { get; set; }
     
-    [Column(TypeName = "timestamp")]
+    [Column(TypeName = "timestamptz")]
     public DateTime? ExpiredAt { get; set; }
     
     [Column]

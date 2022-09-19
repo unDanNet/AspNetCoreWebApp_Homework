@@ -66,7 +66,7 @@ public class UserRepository : IUserRepository
             throw new ArgumentNullException(nameof(data));
         }
 
-        var user = GetById(data.Id, false);
+        var user = GetById(data.Id);
 
         if (user is null)
         {

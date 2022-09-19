@@ -3,25 +3,35 @@ using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Models.DTO;
 using DigitalGamesStoreService.Models.Requests.Create;
 using DigitalGamesStoreService.Models.Requests.Update;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalGamesStoreService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserPublicProfileController
+[Authorize]
+public class UserPublicProfileController : ControllerBase
 {
     #region Services
 
     private readonly ILogger<UserPublicProfileController> logger;
     private readonly IUserPublicProfileRepository userPublicProfileRepository;
+    private readonly IValidator<UserPublicProfileCreateRequest> createRequestValidator;
+    private readonly IValidator<UserPublicProfileUpdateRequest> updateRequestValidator;
 
     #endregion
 
-    public UserPublicProfileController(ILogger<UserPublicProfileController> logger, IUserPublicProfileRepository userPublicProfileRepository)
+    public UserPublicProfileController(ILogger<UserPublicProfileController> logger, 
+        IUserPublicProfileRepository userPublicProfileRepository, 
+        IValidator<UserPublicProfileCreateRequest> createRequestValidator,
+        IValidator<UserPublicProfileUpdateRequest> updateRequestValidator)
     {
         this.logger = logger;
         this.userPublicProfileRepository = userPublicProfileRepository;
+        this.createRequestValidator = createRequestValidator;
+        this.updateRequestValidator = updateRequestValidator;
     }
     
     [HttpGet("get/all")]
@@ -37,7 +47,7 @@ public class UserPublicProfileController
             UserId = profile.UserId
         }).ToList();
         
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpGet("get/{id}")]
@@ -54,13 +64,21 @@ public class UserPublicProfileController
             UserId = profile.UserId
         };
         
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpPost("create")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     public IActionResult Create([FromBody] UserPublicProfileCreateRequest request)
     {
         logger.LogInformation("Created user public profile.");
+
+        var validationResult = createRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         var id = userPublicProfileRepository.Create(new UserPublicProfile {
             UserId = request.UserId,
@@ -68,13 +86,21 @@ public class UserPublicProfileController
             ProfileDescription = request.ProfileDescription,
         });
 
-        return new OkObjectResult(id);
+        return Ok(id);
     }
 
     [HttpPost("update")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Update([FromBody] UserPublicProfileUpdateRequest request)
     {
         logger.LogInformation("Updated user public profile.");
+
+        var validationResult = updateRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         userPublicProfileRepository.Update(new UserPublicProfile {
             Id = request.Id,
@@ -83,7 +109,7 @@ public class UserPublicProfileController
             CurrentlyPlayedGameId = request.CurrentlyPlayedGameId,
         });
 
-        return new OkResult();
+        return Ok();
     }
 
     [HttpDelete("delete/{id}")]
@@ -93,6 +119,6 @@ public class UserPublicProfileController
         
         userPublicProfileRepository.Delete(id);
 
-        return new OkResult();
+        return Ok();
     }
 }
