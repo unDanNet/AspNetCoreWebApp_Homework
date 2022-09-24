@@ -3,25 +3,35 @@ using DigitalGamesStoreService.Models.DTO;
 using DigitalGamesStoreService.Models.Requests.Create;
 using DigitalGamesStoreService.Models.Requests.Update;
 using DigitalGamesStoreService.Services.Repositories;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalGamesStoreService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OwnedGameController
+[Authorize]
+public class OwnedGameController : ControllerBase
 {
     #region Services
 
     private readonly ILogger<OwnedGameController> logger;
     private readonly IOwnedGameRepository ownedGameRepository;
+    private readonly IValidator<OwnedGameCreateRequest> createRequestValidator;
+    private readonly IValidator<OwnedGameUpdateRequest> updateRequestValidator;
 
     #endregion
 
-    public OwnedGameController(ILogger<OwnedGameController> logger, IOwnedGameRepository ownedGameRepository)
+    public OwnedGameController(ILogger<OwnedGameController> logger, 
+        IOwnedGameRepository ownedGameRepository, 
+        IValidator<OwnedGameCreateRequest> createRequestValidator, 
+        IValidator<OwnedGameUpdateRequest> updateRequestValidator)
     {
         this.logger = logger;
         this.ownedGameRepository = ownedGameRepository;
+        this.createRequestValidator = createRequestValidator;
+        this.updateRequestValidator = updateRequestValidator;
     }
 
     [HttpGet("get/all")]
@@ -37,7 +47,7 @@ public class OwnedGameController
             IsFavourite = og.IsFavourite
         }).ToList();
 
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpGet("get/{id}")]
@@ -54,26 +64,42 @@ public class OwnedGameController
             IsFavourite = ownedGame.IsFavourite
         };
         
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpPost("create")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     public IActionResult Create([FromBody] OwnedGameCreateRequest request)
     {
         logger.LogInformation("Created owned game.");
+
+        var validationResult = createRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         var id = ownedGameRepository.Create(new OwnedGame {
             GameId = request.GameId,
             UserId = request.OwnerId
         });
 
-        return new OkObjectResult(id);
+        return Ok(id);
     }
 
     [HttpPost("update")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Update([FromBody] OwnedGameUpdateRequest request)
     {
         logger.LogInformation("Updated owned game.");
+
+        var validationResult = updateRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         ownedGameRepository.Update(new OwnedGame {
             Id = request.Id,
@@ -81,7 +107,7 @@ public class OwnedGameController
             IsFavourite = request.IsFavourite
         });
 
-        return new OkResult();
+        return Ok();
     }
 
     [HttpDelete("delete/{id}")]
@@ -91,6 +117,6 @@ public class OwnedGameController
         
         ownedGameRepository.Delete(id);
 
-        return new OkResult();
+        return Ok();
     }
 }

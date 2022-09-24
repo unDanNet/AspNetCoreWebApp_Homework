@@ -3,25 +3,33 @@ using DigitalGamesStoreService.Models.DTO;
 using DigitalGamesStoreService.Models.Requests.Create;
 using DigitalGamesStoreService.Models.Requests.Update;
 using DigitalGamesStoreService.Services.Repositories;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalGamesStoreService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class GameController
+[Authorize]
+public class GameController : ControllerBase
 {
     #region Services
 
     private readonly ILogger<GameController> logger;
     private readonly IGameRepository gameRepository;
+    private readonly IValidator<GameCreateRequest> createRequestValidator;
+    private readonly IValidator<GameUpdateRequest> updateRequestValidator;
 
     #endregion
 
-    public GameController(ILogger<GameController> logger, IGameRepository gameRepository)
+    public GameController(ILogger<GameController> logger, IGameRepository gameRepository, 
+        IValidator<GameCreateRequest> createRequestValidator, IValidator<GameUpdateRequest> updateRequestValidator)
     {
         this.logger = logger;
         this.gameRepository = gameRepository;
+        this.createRequestValidator = createRequestValidator;
+        this.updateRequestValidator = updateRequestValidator;
     }
     
     [HttpGet("get/all")]
@@ -37,7 +45,7 @@ public class GameController
             DeveloperName = game.DeveloperName
         }).ToList();
         
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpGet("get/{id}")]
@@ -54,13 +62,21 @@ public class GameController
             DeveloperName = game.DeveloperName
         };
         
-        return new OkObjectResult(result);
+        return Ok(result);
     }
 
     [HttpPost("create")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     public IActionResult Create([FromBody] GameCreateRequest request)
     {
         logger.LogInformation("Created game.");
+
+        var validationResult = createRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         var id = gameRepository.Create(new Game {
             Name = request.Name,
@@ -69,13 +85,21 @@ public class GameController
             Cost = request.Cost
         });
 
-        return new OkObjectResult(id);
+        return Ok(id);
     }
 
     [HttpPost("update")]
+    [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Update([FromBody] GameUpdateRequest request)
     {
         logger.LogInformation("Updated game.");
+
+        var validationResult = updateRequestValidator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.ToDictionary());
+        }
         
         gameRepository.Update(new Game {
             Id = request.Id,
@@ -85,7 +109,7 @@ public class GameController
             Cost = request.Cost
         });
 
-        return new OkResult();
+        return Ok();
     }
 
     [HttpDelete("delete/{id}")]
@@ -95,6 +119,6 @@ public class GameController
         
         gameRepository.Delete(id);
 
-        return new OkResult();
+        return Ok();
     }
 }

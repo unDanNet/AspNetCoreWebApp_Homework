@@ -4,7 +4,7 @@ using DigitalGamesStoreService.Models.Responses;
 
 namespace DigitalGamesStoreService.Services;
 
-public interface IAuthenticateService
+public interface IAuthenticationService
 {
     public AuthenticationResponse SignIn(AuthenticationRequest request);
 

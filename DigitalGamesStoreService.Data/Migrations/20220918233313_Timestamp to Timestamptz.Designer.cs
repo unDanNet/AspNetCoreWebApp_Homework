@@ -3,6 +3,7 @@ using System;
 using DigitalGamesStoreService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DigitalGamesStoreService.Data.Migrations
 {
     [DbContext(typeof(DGSServiceDbContext))]
-    partial class DGSServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220918233313_Timestamp to Timestamptz")]
+    partial class TimestamptoTimestamptz
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

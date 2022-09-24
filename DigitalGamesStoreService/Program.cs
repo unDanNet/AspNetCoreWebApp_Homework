@@ -1,11 +1,20 @@
+using System.Text;
 using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Services.Repositories;
 using DigitalGamesStoreService.Services.Repositories.Impl;
 using DigitalGamesStoreService.Models;
+using DigitalGamesStoreService.Models.Requests;
+using DigitalGamesStoreService.Models.Requests.Create;
+using DigitalGamesStoreService.Models.Requests.Update;
+using DigitalGamesStoreService.Models.Validators;
 using DigitalGamesStoreService.Services;
 using DigitalGamesStoreService.Settings;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NLog.Web;
 
 namespace DigitalGamesStoreService
@@ -65,18 +74,90 @@ namespace DigitalGamesStoreService
             
             #endregion
 
+            #region Configuring Authentication
+
+            builder.Services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options => {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(AuthenticationService.SecretKey)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+            #endregion
+
+            #region Configuring Swagger
+
+            builder.Services.AddSwaggerGen(options => {
+                options.SwaggerDoc(
+                    "v1", 
+                    new OpenApiInfo {
+                        Title = "Digital Games Store Service",
+                        Version = "v1"
+                    }
+                );
+                options.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme {
+                        Description = "JWT Authorization header using the Bearer Scheme. For example: 'Bearer a34DfdS'",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    }
+                );
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                    {
+                        new OpenApiSecurityScheme {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+
+            #endregion
+
+            #region Configure Validation
+
+            builder.Services.AddScoped<IValidator<AuthenticationRequest>, AuthenticationRequestValidator>();
+            
+            builder.Services.AddScoped<IValidator<GameCreateRequest>, GameCreateRequestValidator>();
+            builder.Services.AddScoped<IValidator<GameUpdateRequest>, GameUpdateRequestValidator>();
+            
+            builder.Services.AddScoped<IValidator<OwnedGameCreateRequest>, OwnedGameCreateRequestValidator>();
+            builder.Services.AddScoped<IValidator<OwnedGameUpdateRequest>, OwnedGameUpdateRequestValidator>();
+            
+            builder.Services.AddScoped<IValidator<UserCreateRequest>, UserCreateRequestValidator>();
+            builder.Services.AddScoped<IValidator<UserUpdateRequest>, UserUpdateRequestValidator>();
+            
+            builder.Services
+                .AddScoped<IValidator<UserPublicProfileCreateRequest>, UserPublicProfileCreateRequestValidator>();
+            builder.Services
+                .AddScoped<IValidator<UserPublicProfileUpdateRequest>, UserPublicProfileUpdateRequestValidator>();
+
+            #endregion
+            
             #region Adding Other Services
 
-            builder.Services.AddSingleton<IAuthenticateService, AuthenticateService>();
+            builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
             
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
             #endregion
             
             
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -86,6 +167,9 @@ namespace DigitalGamesStoreService
                 app.UseSwaggerUI();
             }
 
+            app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseHttpLogging();

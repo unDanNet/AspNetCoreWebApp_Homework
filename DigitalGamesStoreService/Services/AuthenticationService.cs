@@ -9,15 +9,19 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DigitalGamesStoreService.Services;
 
-public class AuthenticateService : IAuthenticateService
+public class AuthenticationService : IAuthenticationService
 {
     public const string SecretKey = "dad17d9411f71955b500685f63f6b9e2628fab50";
 
-    private readonly Dictionary<string, UserSessionDto> sessions = new Dictionary<string, UserSessionDto>();
+    #region Services
 
+    private readonly Dictionary<string, UserSessionDto> sessions = new Dictionary<string, UserSessionDto>();
     private readonly IServiceScopeFactory serviceScopeFactory;
 
-    public AuthenticateService(IServiceScopeFactory serviceScopeFactory)
+    #endregion
+
+
+    public AuthenticationService(IServiceScopeFactory serviceScopeFactory)
     {
         this.serviceScopeFactory = serviceScopeFactory;
     }
@@ -27,7 +31,8 @@ public class AuthenticateService : IAuthenticateService
         using IServiceScope scope = serviceScopeFactory.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<DGSServiceDbContext>();
-        var user = !string.IsNullOrWhiteSpace(request.Email) ? GetUserByEmail(db, request.Email) : null;
+        var user = !string.IsNullOrWhiteSpace(request.Email) ? 
+            db.Users.FirstOrDefault(u => u.Email == request.Email) : null;
 
         if (user is null)
         {
@@ -36,7 +41,7 @@ public class AuthenticateService : IAuthenticateService
 
         var correctPassword = PasswordUtils.VerifyPassword(request.Password, user.PasswordSalt, user.Password);
 
-        if (correctPassword)
+        if (!correctPassword)
         {
             return new AuthenticationResponse { Status = AuthenticationStatus.InvalidPassword };
         }
@@ -67,13 +72,43 @@ public class AuthenticateService : IAuthenticateService
 
     public UserSessionDto GetSession(string sessionToken)
     {
-        using IServiceScope scope = serviceScopeFactory.CreateScope();
+        UserSessionDto sessionDto;
+
+        lock (sessions)
+        {
+            sessions.TryGetValue(sessionToken, out sessionDto);
+            if (sessionDto is not null) 
+                return sessionDto;
+        }
+
+        using var scope = serviceScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DGSServiceDbContext>();
 
-        return new UserSessionDto();
+        var session = db.UserSessions.FirstOrDefault(us => us.SessionToken == sessionToken);
+        if (session is null)
+        {
+            return null;
+        }
+
+        var user = db.Users.FirstOrDefault(u => u.Id == session.UserId);
+        if (user is null)
+        {
+            return null;
+        }
+
+        sessionDto = GetSessionInfo(user, session);
+        
+        lock (sessions)
+        {
+            sessions.Add(sessionToken, sessionDto);
+        }
+
+        return sessionDto;
     }
 
-    private UserSessionDto GetSessionInfo(User user, UserSession session)
+    #region Private Static Methods
+
+    private static UserSessionDto GetSessionInfo(User user, UserSession session)
     {
         return new UserSessionDto {
             SessionId = session.Id,
@@ -88,12 +123,7 @@ public class AuthenticateService : IAuthenticateService
         };
     }
 
-    private User GetUserByEmail(DGSServiceDbContext db, string email)
-    {
-        return db.Users.FirstOrDefault(u => u.Email == email);
-    }
-
-    private string CreateSessionToken(User user)
+    private static string CreateSessionToken(User user)
     {
         var keyBytes = Encoding.ASCII.GetBytes(SecretKey);
         
@@ -114,4 +144,6 @@ public class AuthenticateService : IAuthenticateService
 
         return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
     }
+
+    #endregion
 }
