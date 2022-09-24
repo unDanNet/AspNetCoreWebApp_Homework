@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using DigitalGamesStoreService.Data;
 using DigitalGamesStoreService.Services.Repositories;
@@ -7,11 +8,13 @@ using DigitalGamesStoreService.Models.Requests;
 using DigitalGamesStoreService.Models.Requests.Create;
 using DigitalGamesStoreService.Models.Requests.Update;
 using DigitalGamesStoreService.Models.Validators;
+using DigitalGamesStoreService.RpcServices;
 using DigitalGamesStoreService.Services;
 using DigitalGamesStoreService.Settings;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -24,6 +27,12 @@ namespace DigitalGamesStoreService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.WebHost.ConfigureKestrel(options => {
+                options.Listen(IPAddress.Any, 7157, listenOptions => {
+                    listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                    listenOptions.UseHttps(@"/home/undan/SSL Certificates/Geekbrains/https.pfx", "0000");
+                });
+            });
 
             #region App Settings Configuration
 
@@ -72,6 +81,12 @@ namespace DigitalGamesStoreService
             builder.Services.AddScoped<IOwnedGameRepository, OwnedGameRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
             
+            #endregion
+
+            #region Configuring gRPC
+
+            builder.Services.AddGrpc();
+
             #endregion
 
             #region Configuring Authentication
@@ -172,9 +187,18 @@ namespace DigitalGamesStoreService
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseWhen(
+                config => config.Request.ContentType != "application/grpc",
+                b => b.UseHttpLogging()
+            );
+            
             app.UseHttpLogging();
 
             app.MapControllers();
+
+            app.UseEndpoints(endpoint => {
+                endpoint.MapGrpcService<GameService>();
+            });
 
             app.Run();
         }
