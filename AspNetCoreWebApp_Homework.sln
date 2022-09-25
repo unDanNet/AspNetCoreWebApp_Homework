@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalGamesStoreService", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalGamesStoreService.Data", "DigitalGamesStoreService.Data\DigitalGamesStoreService.Data.csproj", "{0681E44B-588F-438F-99CF-2FB12217EBE9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DGSServiceClient", "DGSServiceClient\DGSServiceClient.csproj", "{AD94BD8D-3638-4690-890E-05C435D051F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0681E44B-588F-438F-99CF-2FB12217EBE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD94BD8D-3638-4690-890E-05C435D051F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD94BD8D-3638-4690-890E-05C435D051F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD94BD8D-3638-4690-890E-05C435D051F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD94BD8D-3638-4690-890E-05C435D051F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

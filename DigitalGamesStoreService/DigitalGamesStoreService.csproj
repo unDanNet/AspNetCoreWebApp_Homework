@@ -8,6 +8,11 @@
 
     <ItemGroup>
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.48.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.48.1">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.8">
           <PrivateAssets>all</PrivateAssets>
@@ -21,6 +26,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DigitalGamesStoreService.Data\DigitalGamesStoreService.Data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Proto\Game.proto" />
+      <Protobuf Include="Proto\Game.proto" GrpcServices="Server" />
     </ItemGroup>
 
 </Project>

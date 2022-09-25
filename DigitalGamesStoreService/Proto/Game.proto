@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package DigitalGamesStoreServiceRpc;
+
+option csharp_namespace = "DigitalGamesStoreServiceRpc";
+
+service GameService {
+    rpc GetAllGames (GetAllGamesRequest) returns (GetAllGamesResponse);
+    rpc GetGameById (GetGameByIdRequest) returns (GetGameByIdResponse);
+    rpc CreateGame (CreateGameRequest) returns (CreateGameResponse);
+    rpc UpdateGame (UpdateGameRequest) returns (UpdateGameResponse);
+    rpc DeleteGame (DeleteGameRequest) returns (DeleteGameResponse);
+}
+
+
+message GetAllGamesRequest {}
+message GetAllGamesResponse {
+    repeated GameDto games = 1;
+}
+
+
+message GetGameByIdRequest {
+    int32 id = 1;
+}
+message GetGameByIdResponse {
+    GameDto game = 1;
+}
+
+
+message CreateGameRequest {
+    string name = 1;
+    string developerName = 2;
+    string description = 3;
+    double cost = 4;
+}
+
+message CreateGameResponse {
+    int32 id = 1;
+}
+
+
+message UpdateGameRequest {
+    int32 id = 1;
+    string name = 2;
+    string developerName = 3;
+    string description = 4;
+    double cost = 5;
+}
+
+message UpdateGameResponse {}
+
+
+message DeleteGameRequest {
+    int32 id = 1;
+}
+
+message DeleteGameResponse {}
+
+
+message GameDto {
+    int32 id = 1;
+    string name = 2;
+    string developerName = 3;
+    string description = 4;
+    double cost = 5;
+}
