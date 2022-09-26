@@ -54,6 +54,12 @@ public class GameController : ControllerBase
         logger.LogInformation($"Got game with id {id}.");
 
         var game = gameRepository.GetById(id);
+
+        if (game is null)
+        {
+            return BadRequest();
+        }
+        
         var result = new GameDto {
             Id = game.Id,
             Name = game.Name,
@@ -68,7 +74,7 @@ public class GameController : ControllerBase
     [HttpPost("create")]
     [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-    public IActionResult Create([FromBody] GameCreateRequest request)
+    public ActionResult<int> Create([FromBody] GameCreateRequest request)
     {
         logger.LogInformation("Created game.");
 
@@ -91,7 +97,7 @@ public class GameController : ControllerBase
     [HttpPost("update")]
     [ProducesResponseType(typeof(IDictionary<string, string[]>), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public IActionResult Update([FromBody] GameUpdateRequest request)
+    public ActionResult Update([FromBody] GameUpdateRequest request)
     {
         logger.LogInformation("Updated game.");
 
